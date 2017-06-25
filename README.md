@@ -34,8 +34,8 @@ GLOBAL OPTIONS:
 
 # Development
 
-If you are interested in contributing to `awsreset`, you will need the latest
-versions of `protoc`, and all of the Go dependencies in your `$GOPATH`. For the
-purposes of this project, I chose not to use a dependency manager.
+If you are interested in contributing to `awsreset` all of the Go dependencies
+in your `$GOPATH`. For the purposes of this project, I chose not to use a
+dependency manager.
 
 Running `make` will create the executable: `./bin/awsreset`.
