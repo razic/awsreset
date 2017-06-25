@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli"
 )
 
@@ -16,18 +18,24 @@ const usage = `
 tool to reset aws instances
 `
 
-var app *cli.App
+// Session is the global session object for the AWS api
+var Session *session.Session
 
-func init() {
-	app = cli.NewApp()
+func main() {
+	app := cli.NewApp()
 	app.Name = "awsreset"
 	app.Usage = usage
 	app.Commands = []cli.Command{
 		Reset,
-		Grpc,
 	}
-}
-
-func main() {
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name: "region",
+		},
+	}
+	app.Before = func(c *cli.Context) error {
+		Session = session.Must(session.NewSession(aws.NewConfig().WithRegion(c.GlobalString("region"))))
+		return nil
+	}
 	app.Run(os.Args)
 }

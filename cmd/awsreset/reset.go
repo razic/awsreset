@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/urfave/cli"
 )
 
@@ -12,5 +16,15 @@ var Reset = cli.Command{
 }
 
 func reset(c *cli.Context) error {
+	svc := ec2.New(Session)
+	output, err := svc.DescribeInstances(&ec2.DescribeInstancesInput{})
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("%v\n", output)
+
 	return nil
 }
