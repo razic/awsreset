@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/urfave/cli"
 )
 
@@ -15,26 +16,33 @@ const usage = `
  | (_| |\ V  V /\__ \ | |  __/\__ \  __/ |_
   \__,_| \_/\_/ |___/_|  \___||___/\___|\__|
 
-tool to reset aws instances
+reboots instances by tag
 `
-
-// Session is the global session object for the AWS api
-var Session *session.Session
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "awsreset"
 	app.Usage = usage
-	app.Commands = []cli.Command{
-		Reset,
-	}
 	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "dry-run",
+			Usage: "do not actually perform any reboots",
+		},
 		cli.StringFlag{
-			Name: "region",
+			Name:  "region",
+			Value: "us-west-2",
+			Usage: "ec2 region",
 		},
 	}
-	app.Before = func(c *cli.Context) error {
-		Session = session.Must(session.NewSession(aws.NewConfig().WithRegion(c.GlobalString("region"))))
+	app.Action = func(c *cli.Context) error {
+		sess := session.Must(session.NewSession(aws.NewConfig().WithRegion(c.GlobalString("region"))))
+		svc := ec2.New(sess)
+		err := Reset(svc)
+
+		if err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
+
 		return nil
 	}
 	app.Run(os.Args)
