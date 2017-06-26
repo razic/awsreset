@@ -14,7 +14,7 @@ NAME:
  | (_| |\ V  V /\__ \ | |  __/\__ \  __/ |_
   \__,_| \_/\_/ |___/_|  \___||___/\___|\__|
 
-tool to reset aws instances
+reboots instances by tag
 
 
 USAGE:
@@ -24,12 +24,13 @@ VERSION:
    0.0.0
 
 COMMANDS:
-     reset    reboots a collection of tagged EC2 instances
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --help, -h     show help
-   --version, -v  print the version
+   --dry-run       do not actually perform any reboots
+   --region value  ec2 region (default: "us-west-2")
+   --help, -h      show help
+   --version, -v   print the version
 ```
 
 # Development

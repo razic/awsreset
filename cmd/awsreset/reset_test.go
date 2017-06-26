@@ -11,7 +11,7 @@ import (
 
 var cases = map[string][]interface{}{
 	"command-line-arguments.TestResetReturnsErrorWhenUnableToDescribeInstances": []interface{}{
-		nil, errors.New("whoa"),
+		nil, errors.New(""),
 	},
 }
 
@@ -25,11 +25,12 @@ func (m *mockEc2Client) DescribeInstances(input *ec2.DescribeInstancesInput) (*e
 		err    error
 	)
 
-	// look up arguments for this test case by caller function name
 	fpcs := make([]uintptr, 1)
 	runtime.Callers(3, fpcs)
 	fun := runtime.FuncForPC(fpcs[0] - 1)
 	c := cases[fun.Name()]
+
+	// look up return arguments for this test case by caller function name
 	if c != nil {
 		if c[0] != nil {
 			output = c[0].(*ec2.DescribeInstancesOutput)

@@ -21,6 +21,7 @@ reboots instances by tag
 
 func main() {
 	app := cli.NewApp()
+
 	app.Name = "awsreset"
 	app.Usage = usage
 	app.Flags = []cli.Flag{
@@ -45,5 +46,6 @@ func main() {
 
 		return nil
 	}
+
 	app.Run(os.Args)
 }
