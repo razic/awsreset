@@ -31,6 +31,10 @@ var cases = map[string][]interface{}{
 		},
 		nil,
 	},
+	"command-line-arguments.TestResetFiltersOnNameTag": []interface{}{
+		nil,
+		nil,
+	},
 }
 
 type mockEc2Client struct {
@@ -57,6 +61,8 @@ func (m *mockEc2Client) DescribeInstances(input *ec2.DescribeInstancesInput) (*e
 		if c[1] != nil {
 			err = c[1].(error)
 		}
+
+		cases[fun.Name()] = append(c, input)
 	}
 
 	return output, err
@@ -64,7 +70,7 @@ func (m *mockEc2Client) DescribeInstances(input *ec2.DescribeInstancesInput) (*e
 
 func TestResetReturnsErrorWhenUnableToDescribeInstances(t *testing.T) {
 	svc := &mockEc2Client{}
-	err := Reset(svc, os.Stdout)
+	err := Reset(svc, os.Stdout, "")
 
 	if err == nil {
 		t.Fatalf("%s\n", "expected error")
@@ -75,7 +81,7 @@ func TestResetWritesIpsToWriter(t *testing.T) {
 	var buf bytes.Buffer
 
 	svc := &mockEc2Client{}
-	err := Reset(svc, &buf)
+	err := Reset(svc, &buf, "")
 	lines := bytes.Split(buf.Bytes(), []byte{'\n'})
 
 	if err != nil {
@@ -92,5 +98,45 @@ func TestResetWritesIpsToWriter(t *testing.T) {
 
 	if string(lines[2]) != "3" {
 		t.Fatalf("%s\n", "unexpected output")
+	}
+}
+
+func TestResetFiltersOnNameTag(t *testing.T) {
+	var input *ec2.DescribeInstancesInput
+
+	name := "etcd"
+	svc := &mockEc2Client{}
+	err := Reset(svc, os.Stdout, name)
+
+	if err != nil {
+		t.Fatalf("%s\n", "unexpected error")
+	}
+
+	c := cases["command-line-arguments.TestResetFiltersOnNameTag"]
+
+	if c == nil || len(c) < 3 {
+		t.Fatalf("%s\n", "couldnt find input for test case")
+	}
+
+	input = c[2].(*ec2.DescribeInstancesInput)
+
+	if len(input.Filters) != 1 {
+		t.Fatalf("expected only 1 filter, got %d\n", len(input.Filters))
+	}
+
+	filter := input.Filters[0]
+
+	if *filter.Name != "tag:Name" {
+		t.Fatalf("expected name to be tag:Name, got %s\n", filter.Name)
+	}
+
+	if len(filter.Values) != 1 {
+		t.Fatalf("expected a single value in the filter\n")
+	}
+
+	val := filter.Values[0]
+
+	if *val != "*etcd*" {
+		t.Fatalf("%s != %s\n", *val, "*etcd*")
 	}
 }

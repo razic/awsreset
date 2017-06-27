@@ -34,11 +34,15 @@ func main() {
 			Value: "us-west-2",
 			Usage: "ec2 region",
 		},
+		cli.StringFlag{
+			Name:  "name",
+			Usage: "value for tag:Name filter",
+		},
 	}
 	app.Action = func(c *cli.Context) error {
 		sess := session.Must(session.NewSession(aws.NewConfig().WithRegion(c.GlobalString("region"))))
 		svc := ec2.New(sess)
-		err := Reset(svc, os.Stdout)
+		err := Reset(svc, os.Stdout, c.GlobalString("name"))
 
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
