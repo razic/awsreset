@@ -39,7 +39,10 @@ If you are interested in contributing to `awsreset` all of the Go dependencies
 in your `$GOPATH`. For the purposes of this project, I chose not to use a
 dependency manager.
 
-Running `make` will create the executable: `./bin/awsreset`.
+Running `make` will create the following executables:
+
+* `./bin/awsreset-darwin-amd64` (Mac)
+* `./bin/aws-reset-linux-amd64` (Linux)
 
 ## Tests
 
