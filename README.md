@@ -40,3 +40,8 @@ in your `$GOPATH`. For the purposes of this project, I chose not to use a
 dependency manager.
 
 Running `make` will create the executable: `./bin/awsreset`.
+
+## Tests
+
+`awsreset` uses the standard Go `testing` library. Execute `make test` to run
+the tests.
