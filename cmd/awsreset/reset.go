@@ -34,16 +34,32 @@ func Reset(svc ec2iface.EC2API, writer io.Writer, name string) error {
 		return nil
 	}
 
+	// initialize a slice to hold the ids for the reboot
+	ids := []*string{}
+
 	// write out the private ip addresses, and store instance ids for reboot
 	for _, r := range output.Reservations {
+		if r.Instances == nil {
+			continue
+		}
+
 		for _, i := range r.Instances {
 			var buf bytes.Buffer
 
-			buf.WriteString(*i.PrivateIpAddress)
-			buf.WriteRune('\n')
-			buf.WriteTo(writer)
+			if i.PrivateIpAddress != nil {
+				buf.WriteString(*i.PrivateIpAddress)
+				buf.WriteRune('\n')
+				buf.WriteTo(writer)
+			}
+
+			if i.InstanceId != nil {
+				ids = append(ids, i.InstanceId)
+			}
 		}
 	}
+
+	// reboot instances
+	svc.RebootInstances(&ec2.RebootInstancesInput{InstanceIds: ids})
 
 	return nil
 }
