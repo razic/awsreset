@@ -24,6 +24,7 @@ func main() {
 
 	app.Name = "awsreset"
 	app.Usage = usage
+	app.Version = "1.0.0"
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "dry-run",
