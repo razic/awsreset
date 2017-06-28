@@ -42,7 +42,7 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		sess := session.Must(session.NewSession(aws.NewConfig().WithRegion(c.GlobalString("region"))))
 		svc := ec2.New(sess)
-		err := Reset(svc, os.Stdout, c.GlobalString("name"))
+		err := Reset(svc, os.Stdout, c.GlobalString("name"), c.GlobalBool("dry-run"))
 
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)

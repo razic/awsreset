@@ -11,7 +11,7 @@ import (
 )
 
 // Reset will reboot a collection of ec2 instances by tag
-func Reset(svc ec2iface.EC2API, writer io.Writer, name string) error {
+func Reset(svc ec2iface.EC2API, writer io.Writer, name string, dryRun bool) error {
 	// query the ec2 api, filtering by name tag
 	output, err := svc.DescribeInstances(&ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
@@ -59,7 +59,9 @@ func Reset(svc ec2iface.EC2API, writer io.Writer, name string) error {
 	}
 
 	// reboot instances
-	svc.RebootInstances(&ec2.RebootInstancesInput{InstanceIds: ids})
+	if dryRun == false {
+		svc.RebootInstances(&ec2.RebootInstancesInput{InstanceIds: ids})
+	}
 
 	return nil
 }

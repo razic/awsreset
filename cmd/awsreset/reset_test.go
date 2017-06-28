@@ -49,6 +49,10 @@ var cases = map[string][]interface{}{
 		},
 		nil,
 	},
+	"command-line-arguments.TestResetDoesntRebootsInstancesDuringDryRun": []interface{}{
+		nil,
+		nil,
+	},
 }
 
 type mockEc2Client struct {
@@ -103,7 +107,7 @@ func (m *mockEc2Client) DescribeInstances(input *ec2.DescribeInstancesInput) (*e
 
 func TestResetReturnsErrorWhenUnableToDescribeInstances(t *testing.T) {
 	svc := &mockEc2Client{}
-	err := Reset(svc, os.Stdout, "")
+	err := Reset(svc, os.Stdout, "", true)
 
 	if err == nil {
 		t.Fatalf("%s\n", "expected error")
@@ -114,7 +118,7 @@ func TestResetWritesIpsToWriter(t *testing.T) {
 	var buf bytes.Buffer
 
 	svc := &mockEc2Client{}
-	err := Reset(svc, &buf, "")
+	err := Reset(svc, &buf, "", true)
 	lines := bytes.Split(buf.Bytes(), []byte{'\n'})
 
 	if err != nil {
@@ -139,7 +143,7 @@ func TestResetFiltersOnNameTag(t *testing.T) {
 
 	name := "etcd"
 	svc := &mockEc2Client{}
-	err := Reset(svc, os.Stdout, name)
+	err := Reset(svc, os.Stdout, name, true)
 
 	if err != nil {
 		t.Fatalf("%s\n", "unexpected error")
@@ -178,7 +182,7 @@ func TestResetRebootsInstances(t *testing.T) {
 	var input *ec2.RebootInstancesInput
 
 	svc := &mockEc2Client{}
-	err := Reset(svc, os.Stdout, "")
+	err := Reset(svc, os.Stdout, "", false)
 
 	if err != nil {
 		t.Fatalf("%s\n", "unexpected error")
@@ -211,5 +215,23 @@ func TestResetRebootsInstances(t *testing.T) {
 
 	if *ids[2] != "3" {
 		t.Fatalf("%s\n", "unexpected instance id")
+	}
+}
+func TestResetDoesntRebootsInstancesDuringDryRun(t *testing.T) {
+	svc := &mockEc2Client{}
+	err := Reset(svc, os.Stdout, "", true)
+
+	if err != nil {
+		t.Fatalf("%s\n", "unexpected error")
+	}
+
+	c := cases["command-line-arguments.TestResetDoesntRebootsInstancesDuringDryRun"]
+
+	if c == nil {
+		t.Fatalf("%s\n", "unable to find test case params")
+	}
+
+	if len(c) >= 4 {
+		t.Fatalf("%s\n", "shouldnt have found any input for test case")
 	}
 }
